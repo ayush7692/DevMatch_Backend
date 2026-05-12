@@ -25,9 +25,9 @@ profileRouter.patch('/profile/edit',userAuth, async (req, res) => {
     try {
        const loginUser = req.user // validate user with token 
 
-       validatedUserEditData(req) // validet allowed field 
+       const isEditAllowed = validatedUserEditData(req) // validate allowed field 
 
-       if(!validatedUserEditData){
+       if(!isEditAllowed){
             return res.status(401).json({
                 message : "User Not allowed to update These Field"
             })

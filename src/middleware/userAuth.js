@@ -2,30 +2,37 @@ const User = require('../models/usermodel')
 const jwt = require('jsonwebtoken')
 
 const userAuth = async(req, res, next)=>{
-     try {
-        const { token } = req.cookies
-        if (!token) {
-            return res.status(401).json({
-                message: "No token, unauthorized"
-            })
+    let token
+   
+    try {
+        if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+
+            // split token form string 
+            token = req.headers.authorization.split(" ")[1]
+            if (!token) {
+                throw new Error("token is unavailable")
+            }
+          
+            // verify token with jwt 
+            const decoded = jwt.verify(token, process.env.SECRET_KEY)
+
+            // find user 
+            const user = await User.findById(decoded.id).select("-password")
+            if (!user) {
+                res.status(404)
+                throw new Error("User not found")
+            }
+          
+            req.user = user
+            next()
+            
         }
-
-        const decoded = jwt.verify(token, process.env.SECRET_KEY)
-        const { _id } = decoded
-
-        const user = await User.findOne({ _id })
-        if (!user) {
-            throw new Error('User not exist')
-        }
-
-        req.user = user
-        next()
-     } catch (error) {
-        res.status(404).json({
-            message:error.message
-        })
-     }
-
+    } catch (error) {
+        res.status(401)
+        throw new Error("Unauthorise Access")
+    }
 }
+
+
 
 module.exports = userAuth

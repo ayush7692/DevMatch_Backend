@@ -10,7 +10,7 @@ const USER_SAFE_DATA = "firstName lastName age gender skills "
 
 // get all the request that is pending or already send to logged in  user
 
-userRouter.get("/user/request/received",userAuth,async(req,res)=>{
+userRouter.get("/request/received",userAuth,async(req,res)=>{
     try {
         
    const loggedInUser = req.user
@@ -34,7 +34,7 @@ userRouter.get("/user/request/received",userAuth,async(req,res)=>{
 
 
 // Looking for match 
-userRouter.get('/user/connections',userAuth,async(req,res)=>{
+userRouter.get('/connections',userAuth,async(req,res)=>{
  try {
        const loggedInUser = req.user 
     
@@ -66,7 +66,7 @@ userRouter.get('/user/connections',userAuth,async(req,res)=>{
 
 
 // ALL Feeds 
-userRouter.get("/user/feed",userAuth,async(req,res)=>{
+userRouter.get("/feed",userAuth,async(req,res)=>{
 
     try {
         const loggedInUser = req.user

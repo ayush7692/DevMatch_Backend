@@ -2,7 +2,7 @@ const validator = require('validator')
 
 const signupValidation = (req)=>{
 
-    const {firstName,lastName,emailId,password,age} = req.body
+    const {firstName,lastName,emailId,password,age,skills} = req.body
 
     const Regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -24,6 +24,9 @@ const signupValidation = (req)=>{
     else if(age<18){
         throw new Error('Your are too small to use this app')
     }
+    // else if(skills.length>10){
+    //     throw new Error('not more than 10 skills ')
+    // }
 }
 
 

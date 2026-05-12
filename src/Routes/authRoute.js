@@ -18,7 +18,7 @@ authRouter.post('/signup', async (req, res) => {
     try {
         signupValidation(req) //  data validation 
 
-        const { firstName, lastName, emailId, password, age } = req.body
+        const { firstName, lastName, emailId, password, age,skills } = req.body
 
         const oldUser = await User.findOne({ emailId: emailId })
         if (oldUser) {
@@ -29,11 +29,16 @@ authRouter.post('/signup', async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10)
 
+        // converting my skills in array 
+        const formatedSkills = skills ? skills.split(",").map(skill=> skill.trim()) : [] 
+
+
         const user = new User({
             firstName,
             lastName,
             emailId,
             age,
+            skills : formatedSkills,
             password: passwordHash
         }) //saving to db
         await user.save()
@@ -48,7 +53,7 @@ authRouter.post('/signup', async (req, res) => {
 authRouter.post("/login", async (req, res) => {
     try {
         const { emailId, password } = req.body
-        
+
 
         const user = await User.findOne({ emailId: emailId }) // find Email
         if (!user) {
@@ -59,29 +64,49 @@ authRouter.post("/login", async (req, res) => {
 
         const isPasswordValid = await user.validatePaswaord(password) //compare password come from schema Method
 
-        const data = {_id:user._id,firstName:user.firstName,lastName:user.lastName,age:user.age,emailId:user.emailId,createdAt:user.createdAt}
+        // if(!isPasswordValid){
+        //     throw new Error("invalid credential")
+        // }
 
-        if (isPasswordValid) {
+
+
+        const data = { _id: user._id, firstName: user.firstName, lastName: user.lastName, age: user.age, emailId: user.emailId, createdAt: user.createdAt }
+
+        if(isPasswordValid){
 
             // const token = jwt.sign({ _id: user._id }, process.env.SECRET_KEY, { expiresIn: '1d' }) token
 
-            const token = await user.getJWT()
+            // const token = await user.getJWT()
+            
 
-            res.cookie("token",token)
             res.status(200).json({
-                message : "Login Successfully",
-                data
+                _id:user._id,
+                firstName : user.firstName,
+                lastName: user.lastName,
+                token: generateToken(user._id)
+            
+                
             })
-        } else (res.json({
-            message: "invalid credential"
-        }))
-
+        } else {
+             res.status(400).json({ message: 'Invalid credentials' });
+        }
 
     } catch (error) {
         res.status(404).send(error.message)
     }
 })
 
+authRouter.post('/logout', async (req, res) => {
+    res.cookie("token", null, { expires: new Date(Date.now()) })
+    res.send('logout Successfully')
+})
 
+
+// genrate token
+const generateToken = (id) => {
+  return jwt.sign({ id }, process.env.SECRET_KEY, {
+    expiresIn: '30d',
+  });
+};
 
 module.exports = authRouter

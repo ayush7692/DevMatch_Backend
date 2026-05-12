@@ -34,7 +34,8 @@ const userShema = new mongoose.Schema({
     },
     dateOfBirth:{
         type:Number,
-        max:11
+        max:11,
+        trim : true
     },
     age:{
         type:Number,
@@ -46,7 +47,7 @@ const userShema = new mongoose.Schema({
         enum:["male","female","other"]
     },
     skills:{
-        type : String,
+        type : [String]
     }
 
 },{
@@ -57,8 +58,7 @@ userShema.methods.getJWT= async function (){
 
     const user = this ;
 
-    const token = await jwt.sign({_id:user._id},process.env.SECRET_KEY,{expiresIn:"7d"})
-
+    const token = await jwt.sign({_id:user?._id},process.env.SECRET_KEY,{expiresIn:"7d"})
     return token 
 }
 

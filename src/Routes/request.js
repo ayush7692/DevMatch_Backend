@@ -109,7 +109,18 @@ requestRouter.post("/request/review/:status/:requestId",userAuth,async(req,res)=
     }
 })
 
+requestRouter.get('/request/review',userAuth,async(req,res)=>{
 
+    const userId = req.user
+
+
+    
+   const requests = await ConnectionRequest.find({toUserId:userId}).populate("fromUserId" ,"skills")
+
+   
+
+   res.send(requests)
+})
 
 
 module.exports = requestRouter
